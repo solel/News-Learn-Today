@@ -174,14 +174,25 @@ async function fetchNews() {
     '기후': 'climate',
     '기후변화': 'climate change'
   };
-  if (korToEng[keyword]) {
-    keywords.push(korToEng[keyword]);
+  let searchCombos = [];
+  const isKorean = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(keyword);
+  if (isKorean && korToEng[keyword]) {
+    // 한글 키워드: 한글(ko), 한글(en), 영문(en)
+    searchCombos.push({q: keyword, lang: 'ko'});
+    searchCombos.push({q: keyword, lang: 'en'});
+    searchCombos.push({q: korToEng[keyword], lang: 'en'});
+  } else if (isKorean) {
+    // 한글 키워드지만 매핑 없음: 한글(ko), 한글(en)
+    searchCombos.push({q: keyword, lang: 'ko'});
+    searchCombos.push({q: keyword, lang: 'en'});
+  } else {
+    // 영문 키워드: 영문(en)
+    searchCombos.push({q: keyword, lang: 'en'});
   }
-  // 여러 키워드로 각각 검색 후 결과 합치기
   let allArticles = [];
   let errorCount = 0;
-  for (let k of keywords) {
-    const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(k)}&language=ko&sortBy=publishedAt&pageSize=5&apiKey=${apiKey}`;
+  for (let combo of searchCombos) {
+    const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(combo.q)}&language=${combo.lang}&sortBy=publishedAt&pageSize=5&apiKey=${apiKey}`;
     try {
       const res = await fetch(url);
       const data = await res.json();
