@@ -191,15 +191,21 @@ async function fetchNews() {
   }
   let allArticles = [];
   let errorCount = 0;
+  let lastErrorMsg = '';
   for (let combo of searchCombos) {
     const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(combo.q)}&language=${combo.lang}&sortBy=publishedAt&pageSize=5&apiKey=${apiKey}`;
     try {
       const res = await fetch(url);
       const data = await res.json();
+      if (data.status === 'error') {
+        lastErrorMsg = data.message || 'API 오류';
+        continue;
+      }
       if (data.articles && data.articles.length > 0) {
         allArticles = allArticles.concat(data.articles);
       }
     } catch (e) {
+      lastErrorMsg = e.message || '네트워크 오류';
       errorCount++;
     }
   }
@@ -213,7 +219,11 @@ async function fetchNews() {
   const newsDiv = document.getElementById('newsResults');
   newsDiv.innerHTML = '';
   if (allArticles.length === 0) {
-    newsDiv.innerHTML = '<div style="color:#888;">검색 결과가 없습니다.</div>';
+    if (lastErrorMsg) {
+      newsDiv.innerHTML = `<div style='color:#e11d48;'>뉴스API 오류: ${lastErrorMsg}</div>`;
+    } else {
+      newsDiv.innerHTML = '<div style="color:#888;">검색 결과가 없습니다.</div>';
+    }
     window.newsArticles = [];
     return;
   }
