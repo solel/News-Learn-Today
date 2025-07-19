@@ -1,0 +1,217 @@
+/* 메인 헤더(로그아웃 포함) 스타일 */
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.2rem;
+}
+.main-header h1 {
+  margin: 0;
+}
+.logout-btn {
+  width: auto;
+  min-width: 90px;
+  margin-left: 1rem;
+}
+.my-hr {
+  margin: 2rem 0 1rem 0;
+  border: none;
+  border-top: 1.5px solid #c7d2fe;
+}
+/* 로그인/회원가입/메인 섹션 표시 제어 */
+#loginSection, #registerSection, #mainSection, #summarySection {
+  display: none;
+}
+#loginSection.active, #registerSection.active, #mainSection.active, #summarySection.active {
+  display: flex;
+}
+
+/* 에러 메시지 스타일 */
+#loginError, #registerError {
+  color: #ef4444;
+  font-size: 1.05rem;
+  margin-top: 0.7rem;
+  min-height: 1.2em;
+}
+
+/* 보조 버튼 스타일 */
+button.secondary {
+  background: #e0e7ff;
+  color: #6366f1;
+  margin-top: 0.5rem;
+  border: 1.5px solid #c7d2fe;
+  box-shadow: none;
+}
+button.secondary:hover {
+  background: #6366f1;
+  color: #fff;
+}
+/* style.css */
+body {
+  font-family: 'Pretendard', 'Noto Sans KR', Arial, sans-serif;
+  background: linear-gradient(120deg, #f8fafc 0%, #e0e7ff 100%);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  color: #222;
+}
+
+h1 {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 2.5rem;
+  color: #3b82f6;
+  letter-spacing: -1px;
+}
+
+.section {
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 4px 24px rgba(60, 72, 100, 0.08);
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+label {
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  color: #6366f1;
+}
+
+input[type="text"], input[type="email"], input[type="password"], select, textarea {
+  border: 1.5px solid #c7d2fe;
+  border-radius: 0.7rem;
+  padding: 1.1rem 1.2rem;
+  font-size: 1.15rem;
+  outline: none;
+  transition: border 0.2s;
+  background: #f1f5f9;
+  margin-bottom: 0.5rem;
+}
+input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, select:focus, textarea:focus {
+  border: 1.5px solid #6366f1;
+  background: #fff;
+}
+
+button {
+  background: linear-gradient(90deg, #6366f1 0%, #3b82f6 100%);
+  color: #fff;
+  border: none;
+  border-radius: 0.7rem;
+  padding: 1.1rem 1.5rem;
+  font-size: 1.18rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
+  transition: background 0.2s, transform 0.1s;
+  margin-bottom: 0.5rem;
+}
+button:hover {
+  background: linear-gradient(90deg, #3b82f6 0%, #6366f1 100%);
+  transform: translateY(-2px) scale(1.03);
+}
+
+#newsResults {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  margin-top: 1.2rem;
+}
+
+.news-card {
+  background: #f1f5f9;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.07);
+  padding: 1.2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  border-left: 5px solid #6366f1;
+  transition: box-shadow 0.2s;
+  position: relative;
+  padding-bottom: 2.2em;
+  margin-bottom: 1.2em;
+  border-bottom: 1px solid #e5e7eb;
+}
+.news-card:hover {
+  box-shadow: 0 6px 24px rgba(99, 102, 241, 0.13);
+}
+.news-card .summary-actions {
+  position: absolute;
+  right: 0.7em;
+  bottom: 0.7em;
+  display: flex;
+  gap: 0.4em;
+}
+.news-card .summary-actions button {
+  font-size: 0.92em;
+  padding: 0.2em 0.7em;
+  border-radius: 4px;
+  border: 1px solid #bdbdbd;
+  background: #f3f4f6;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.news-card .summary-actions button:hover {
+  background: #e0e7ef;
+}
+
+#summarySection {
+  animation: fadeIn 0.7s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#summaryText, #relatedCareers {
+  background: #e0e7ff;
+  border-radius: 0.7rem;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.05rem;
+  color: #3730a3;
+}
+
+#editMySummariesBtn {
+  font-size: 0.55em;
+  padding: 0.06em 0.22em;
+  border-radius: 3px;
+  border: 1px solid #2563eb;
+  background: #2563eb;
+  color: #fff;
+  cursor: pointer;
+  margin-left: 0.4em;
+  float: right;
+  margin-top: 0.13em;
+  font-weight: 500;
+  line-height: 1.15;
+  display: flex;
+  align-items: center;
+  gap: 0.18em;
+}
+#editMySummariesBtn .edit-icon {
+  font-size: 1.13em;
+  margin-left: 0.1em;
+}
+#editMySummariesBtn:hover {
+  background: #1746b0;
+  border-color: #1746b0;
+}
+
+@media (max-width: 700px) {
+  .section {
+    max-width: 98vw;
+    padding: 1.2rem 0.7rem;
+  }
+  h1 {
+    font-size: 2rem;
+  }
+}
+
