@@ -151,7 +151,7 @@ function register() {
 // 뉴스 검색/요약/저장 기존 코드 (로그인 후에만 동작)
 async function fetchNews() {
   const keyword = document.getElementById('keyword').value.trim();
-  const apiKey = '861eb3faed9d4942a1fc56eea14c13f5'; // NewsAPI 키
+  const apiKey = '4407949fffb3ffe9d803af5ad97b7b89'; // GNews API 키
   let keywords = [keyword];
   // 대표적인 한글 키워드에 대해 영문도 함께 검색
   const korToEng = {
@@ -177,14 +177,12 @@ async function fetchNews() {
   let searchCombos = [];
   const isKorean = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(keyword);
   if (isKorean && korToEng[keyword]) {
-    // 한글 키워드: 한글(ko), 한글(en), 영문(en)
+    // 한글 키워드: 한글(ko), 영문(en) 매핑
     searchCombos.push({q: keyword, lang: 'ko'});
-    searchCombos.push({q: keyword, lang: 'en'});
     searchCombos.push({q: korToEng[keyword], lang: 'en'});
   } else if (isKorean) {
-    // 한글 키워드지만 매핑 없음: 한글(ko), 한글(en)
+    // 한글 키워드지만 매핑 없음: 한글(ko)
     searchCombos.push({q: keyword, lang: 'ko'});
-    searchCombos.push({q: keyword, lang: 'en'});
   } else {
     // 영문 키워드: 영문(en)
     searchCombos.push({q: keyword, lang: 'en'});
@@ -193,12 +191,14 @@ async function fetchNews() {
   let errorCount = 0;
   let lastErrorMsg = '';
   for (let combo of searchCombos) {
-    const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(combo.q)}&language=${combo.lang}&sortBy=publishedAt&pageSize=5&apiKey=${apiKey}`;
+    // GNews API: https://gnews.io/docs/
+    // 예시: https://gnews.io/api/v4/search?q=환경&lang=ko&max=5&token=API_KEY
+    const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(combo.q)}&lang=${combo.lang}&max=5&token=${apiKey}`;
     try {
       const res = await fetch(url);
       const data = await res.json();
-      if (data.status === 'error') {
-        lastErrorMsg = data.message || 'API 오류';
+      if (data.errors) {
+        lastErrorMsg = data.errors[0] || 'API 오류';
         continue;
       }
       if (data.articles && data.articles.length > 0) {
@@ -220,7 +220,7 @@ async function fetchNews() {
   newsDiv.innerHTML = '';
   if (allArticles.length === 0) {
     if (lastErrorMsg) {
-      newsDiv.innerHTML = `<div style='color:#e11d48;'>뉴스API 오류: ${lastErrorMsg}</div>`;
+      newsDiv.innerHTML = `<div style='color:#e11d48;'>GNews 오류: ${lastErrorMsg}</div>`;
     } else {
       newsDiv.innerHTML = '<div style="color:#888;">검색 결과가 없습니다.</div>';
     }
@@ -233,7 +233,7 @@ async function fetchNews() {
     div.className = 'news-card';
     div.innerHTML = `
       <strong>${article.title}</strong><br>
-      <em>${article.description || ''}</em><br>
+      <em>${article.description || article.content || ''}</em><br>
       <button class="summarize-btn" data-index="${index}">이 뉴스 요약하기</button>
     `;
     newsDiv.appendChild(div);
