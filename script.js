@@ -46,16 +46,21 @@ async function fetchNews() {
   let allArticles = [];
   let errorCount = 0;
   let lastErrorMsg = '';
-  const apiKey = '861eb3faed9d4942a1fc56eea14c13f5'; // NewsAPI 키
   for (let combo of searchCombos) {
-    // NewsAPI 직접 호출 (CORS 허용 환경에서만 동작)
-    const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(combo.q)}&language=${combo.lang}&sortBy=publishedAt&pageSize=5&apiKey=${apiKey}`;
+    // Netlify Functions 프록시를 통한 NewsAPI 호출
+    const params = new URLSearchParams({
+      q: combo.q,
+      language: combo.lang,
+      sortBy: 'publishedAt',
+      pageSize: 5
+    });
+    const url = `/api/news?${params.toString()}`;
     try {
       const res = await fetch(url);
       const data = await res.json();
       console.log('NewsAPI 응답:', data); // 디버깅용
-      if (data.status === 'error') {
-        lastErrorMsg = data.message || 'NewsAPI 오류';
+      if (data.status === 'error' || data.error) {
+        lastErrorMsg = data.message || data.error || 'NewsAPI 오류';
         continue;
       }
       if (data.articles && data.articles.length > 0) {
