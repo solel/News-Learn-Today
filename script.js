@@ -173,7 +173,10 @@ async function fetchNews() {
 
 async function summarizeNews(index) {
   const article = window.newsArticles[index];
-  document.getElementById('selectedNewsTitle').innerText = article.title;
+  const titleDiv = document.getElementById('selectedNewsTitle');
+  if (titleDiv) {
+    titleDiv.innerText = article.title;
+  }
   // 뉴스 링크 표시
   const newsLinkDiv = document.getElementById('selectedNewsLink');
   if (newsLinkDiv) {
