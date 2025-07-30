@@ -13,15 +13,17 @@
 <body>
 
   <!-- 로그인 섹션 -->
-  <div class="section" id="loginSection" class="active">
+  <div class="section" id="loginSection">
     <h1 style="margin-bottom:1.2rem;">오늘의 뉴스는?</h1>
     <h2>로그인</h2>
     <label for="loginEmail">이메일</label>
     <input type="email" id="loginEmail" placeholder="이메일 입력" autocomplete="username" />
     <label for="loginPassword">비밀번호</label>
     <input type="password" id="loginPassword" placeholder="비밀번호 입력" autocomplete="current-password" />
-    <button onclick="login()">로그인</button>
-    <button class="secondary" onclick="showRegister()">회원가입</button>
+    <div class="button-group">
+      <button class="small" onclick="login()">로그인</button>
+      <button class="small secondary" onclick="showRegister()">회원가입</button>
+    </div>
     <div id="loginError"></div>
   </div>
 
@@ -32,8 +34,10 @@
     <input type="email" id="registerEmail" placeholder="이메일 입력" autocomplete="username" />
     <label for="registerPassword">비밀번호</label>
     <input type="password" id="registerPassword" placeholder="비밀번호(6자 이상)" autocomplete="new-password" />
-    <button onclick="register()">회원가입 완료</button>
-    <button class="secondary" onclick="showLogin()">로그인 화면으로</button>
+    <div class="button-group">
+      <button class="small" onclick="register()">회원가입 완료</button>
+      <button class="small secondary" onclick="showLogin()">로그인 화면으로</button>
+    </div>
     <div id="registerError"></div>
   </div>
 
@@ -45,7 +49,9 @@
     </div>
     <label for="keyword">🔍 뉴스 키워드 입력</label>
     <input type="text" id="keyword" placeholder="예: 환경, AI, 의료..." />
-    <button onclick="fetchNews()">뉴스 검색</button>
+    <div class="button-group">
+      <button class="small" onclick="fetchNews()">뉴스 검색</button>
+    </div>
     <div id="newsResults"></div>
     <hr class="my-hr">
     <h2>내 학습자료 목록 <button id="editMySummariesBtn" onclick="editMySummariesMode()">수정하기 <span class="edit-icon">✏️</span></button></h2>
@@ -64,7 +70,7 @@
   </div>
 
   <!-- 결과/피드백/재검색 전용 화면 -->
-  <div class="section" id="resultSection" style="display:none;">
+  <div class="section" id="resultSection">
     <h2>📝 나의 뉴스 학습 결과</h2>
     <h3>내가 저장한 뉴스 요약 목록</h3>
     <div id="resultMySummaryList"></div>

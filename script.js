@@ -1,5 +1,3 @@
-// goToCareerStep 함수 브라우저에서 접근 가능하도록 등록
-window.goToCareerStep = goToCareerStep;
 // ===== Firebase 초기화 =====
 if (!firebase.apps.length) {
   firebase.initializeApp({
@@ -8,8 +6,118 @@ if (!firebase.apps.length) {
     projectId: "metabus-newsapi",
     storageBucket: "metabus-newsapi.firebasestorage.app",
     messagingSenderId: "23840202779",
-    appId: "1:23840202779:web:dfcc3eee2872c8f1edd8be",
-// 뉴스 검색 (GNews 프록시 사용, 로그인 후에만 동작)
+    appId: "1:23840202779:web:dfcc3eee2872c8f1edd8be"
+  });
+}
+
+// Firebase Auth, Firestore 객체 선언
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// goToCareerStep 함수 브라우저에서 접근 가능하도록 등록
+window.goToCareerStep = goToCareerStep;
+
+// ===== 로그인/회원가입/로그아웃/화면전환 함수 추가 =====
+function showLogin() {
+  document.getElementById('loginSection').style.display = 'block';
+  document.getElementById('registerSection').style.display = 'none';
+  document.getElementById('mainSection').style.display = 'none';
+  document.getElementById('summarySection').style.display = 'none';
+  document.getElementById('resultSection').style.display = 'none';
+}
+function showRegister() {
+  document.getElementById('loginSection').style.display = 'none';
+  document.getElementById('registerSection').style.display = 'block';
+  document.getElementById('mainSection').style.display = 'none';
+  document.getElementById('summarySection').style.display = 'none';
+  document.getElementById('resultSection').style.display = 'none';
+}
+function showMain() {
+  document.getElementById('loginSection').style.display = 'none';
+  document.getElementById('registerSection').style.display = 'none';
+  document.getElementById('loginSection').style.display = 'none';
+  document.getElementById('registerSection').style.display = 'none';
+  document.getElementById('mainSection').style.display = 'block';
+  document.getElementById('summarySection').style.display = 'none';
+  document.getElementById('resultSection').style.display = 'none';
+  loadMySummaries();
+}
+
+// 내 학습자료 목록 불러오기 (mainSection용)
+function loadMySummaries() {
+  const user = auth.currentUser;
+  const listDiv = document.getElementById('mySummaryList');
+  if (!user) {
+    listDiv.innerHTML = '(로그인 후 불러옵니다)';
+    return;
+  }
+  db.collection('newsSummaries')
+    .where('uid', '==', user.uid)
+    .orderBy('date', 'desc')
+    .limit(10)
+    .get()
+    .then(snapshot => {
+      if (snapshot.empty) {
+        listDiv.innerHTML = '저장된 학습자료가 없습니다.';
+        return;
+      }
+      let html = '';
+      snapshot.forEach(doc => {
+        const d = doc.data();
+        const docId = doc.id;
+        html += `<div class=\"news-card\">`
+          + `<strong>${d.title}</strong><br>`
+          + `<span style='font-size:0.95em;color:#6366f1;'>${d.dateDisplay || (d.date ? new Date(d.date).toLocaleString('ko-KR') : '')}</span><br>`
+          + `<div style='margin:0.5em 0;'>${d.summary || ''}</div>`
+          + (d.url ? `<div><a href='${d.url}' target='_blank' style='color:#2563eb;'>기사 링크</a></div>` : '')
+          + `<div class=\"summary-actions\">`
+          + `<button onclick=\"editSummary('${docId}')\">수정</button>`
+          + `<button onclick=\"deleteSummary('${docId}')\">삭제</button>`
+          + `</div>`
+          + `</div>`;
+      });
+      listDiv.innerHTML = html;
+    })
+    .catch(err => {
+      listDiv.innerHTML = '불러오기 실패: ' + (err && err.message ? err.message : '네트워크 오류');
+    });
+}
+
+function login() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  auth.signInWithEmailAndPassword(email, password)
+    .catch(err => {
+      document.getElementById('loginError').innerText = err.message || '로그인 실패';
+    });
+}
+
+function register() {
+  const email = document.getElementById('registerEmail').value.trim();
+  const password = document.getElementById('registerPassword').value;
+  auth.createUserWithEmailAndPassword(email, password)
+    .then(() => {
+      showLogin();
+    })
+    .catch(err => {
+      document.getElementById('registerError').innerText = err.message || '회원가입 실패';
+    });
+}
+
+function logout() {
+  auth.signOut();
+}
+
+// ===== auth 상태 변화에 따라 섹션 전환 =====
+auth.onAuthStateChanged(function(user) {
+  if (user) {
+    showMain();
+  } else {
+    showLogin();
+  }
+});
+
+// 뉴스 검색 (Netlify 프록시 사용, 로그인 후에만 동작)
 async function fetchNews() {
   const keyword = document.getElementById('keyword').value.trim();
   // 대표적인 한글 키워드에 대해 영문도 함께 검색
@@ -107,41 +215,6 @@ async function fetchNews() {
       summarizeNews(idx);
     };
   });
-}
-// 최초 진입 시 로그인 화면 표시 (auth 상태에 따라)
-    searchCombos.push({q: keyword, lang: 'en'});
-  }
-  let allArticles = [];
-  let errorCount = 0;
-  let lastErrorMsg = '';
-  for (let combo of searchCombos) {
-    // GNews API: https://gnews.io/docs/
-    // 예시: https://gnews.io/api/v4/search?q=환경&lang=ko&max=5&token=API_KEY
-    const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(combo.q)}&lang=${combo.lang}&max=5&token=${apiKey}`;
-    try {
-      const res = await fetch(url);
-      const data = await res.json();
-      if (data.errors) {
-        lastErrorMsg = data.errors[0] || 'API 오류';
-        continue;
-      }
-      if (data.articles && data.articles.length > 0) {
-        allArticles = allArticles.concat(data.articles);
-      }
-    } catch (e) {
-      lastErrorMsg = e.message || '네트워크 오류';
-      errorCount++;
-    }
-  }
-  // 중복 기사 제거 (url 기준)
-  const seen = new Set();
-  allArticles = allArticles.filter(a => {
-    if (!a.url || seen.has(a.url)) return false;
-    seen.add(a.url);
-    return true;
-  });
-  const newsDiv = document.getElementById('newsResults');
-  newsDiv.innerHTML = '';
   if (allArticles.length === 0) {
     if (lastErrorMsg) {
       newsDiv.innerHTML = `<div style='color:#e11d48;'>GNews 오류: ${lastErrorMsg}</div>`;
